@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/succes_lay"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/abt_bkg_das"
+    tools:context="com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Success_dialog">
+
+    <com.mikhaellopez.circularimageview.CircularImageView
+
+        android:id="@+id/img_url"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_below="@+id/close"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/album1"
+        app:civ_border_color="@color/black"
+        app:civ_border_width="0dp"
+        app:civ_shadow="true"
+        app:civ_shadow_color="#8BC34A"
+        app:civ_shadow_radius="0" />
+
+    <Button
+        android:id="@+id/close"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="X"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/song_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="SONG NAME"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/img_url"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/artist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="ARTIST NAME"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/song_name"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+
+    <ImageButton
+        android:id="@+id/play_pause_btn"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:background="@color/transparent_text_song_bkg"
+        app:srcCompat="@drawable/btn_play"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true" />
+
+    <Button
+        android:id="@+id/btn_download"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+
+        android:background="@drawable/ic_nav_downloads"
+        android:layout_marginTop="47dp"
+        android:layout_below="@+id/artist_name"
+        android:layout_alignParentEnd="true" />
+
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/player_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/btn_download"
+        app:controller_layout_id="@layout/custom_playback_control"
+        app:fastforward_increment="30000"
+        app:rewind_increment="30000"
+        app:show_timeout="0"
+        app:use_controller="true" />
+
+</RelativeLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ff1104</color>
+    <color name="colorPrimaryDark">#f92c3a</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="Musicp">#4af64646</color>
+    <color name="play_text_bkg">#982be307</color>
+    <color name="transparent_reddish">#71d69d9d</color>
+    <color name="album_title">#fffefe</color>
+    <color name="red">#d3000b</color>
+    <color name="transparent_text_song_bkg">#719934e6</color>
+
+    <!-- A transparent black -->
+    <color name="transparent_black">#aa000000</color>
+
+    <!-- selected tab text -->
+    <color name="selected_tabtext">#bb000000</color>
+
+    <!-- non selected tab text -->
+    <color name="unselected_tabtext">#77000000</color>
+    <color name="shuffle_grey">#ffdedede</color>
+    <color name="background_grey">#ffdedede</color>
+
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+
+    <!-- Black -->
+    <color name="black">#ff000000</color>
+
+    <!-- White -->
+    <color name="white">#ffffffff</color>
+
+</resources>

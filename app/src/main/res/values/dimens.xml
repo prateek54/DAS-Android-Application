@@ -1,0 +1,34 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">19dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="card_margin">5dp</dimen>
+    <dimen name="card_album_radius">0dp</dimen>
+    <dimen name="album_cover_height">100dp</dimen>
+    <dimen name="album_title_padding">10dp</dimen>
+    <dimen name="album_title">18dp</dimen>
+    <dimen name="songs_count_padding_bottom">5dp</dimen>
+    <dimen name="songs_count">14dp</dimen>
+    <dimen name="ic_album_overflow_width">20dp</dimen>
+    <dimen name="ic_album_overflow_height">30dp</dimen>
+    <dimen name="ic_album_overflow_margin_top">10dp</dimen>
+
+
+    <!-- Text sizes -->
+    <dimen name="text_size_extra_micro">10sp</dimen>
+    <dimen name="text_size_micro">12sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">18sp</dimen>
+
+    <!-- Nofication bar button -->
+    <dimen name="status_bar_button_width_height">48dp</dimen>
+    <dimen name="status_bar_album_art">64dp</dimen>
+    <dimen name="status_bar_button_info_container_padding_left">11dp</dimen>
+    <dimen name="notification_expanded_height">128.0dip</dimen>
+    <dimen name="play_controls_notification">48.0dip</dimen>
+    <dimen name="notification_padding">8.0dip</dimen>
+</resources>

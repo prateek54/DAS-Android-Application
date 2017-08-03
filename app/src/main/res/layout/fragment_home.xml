@@ -1,0 +1,248 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frag1_lay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/search_bkg">
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/transparent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+
+    <Button
+        android:id="@+id/search"
+        style="@android:style/Widget.Button.Small"
+        android:layout_width="60dp"
+        android:layout_height="38dp"
+        android:layout_alignBottom="@+id/imageView3"
+        android:layout_alignEnd="@+id/lang_grp"
+        android:layout_alignStart="@+id/lang_grp"
+        android:layout_marginBottom="31dp"
+        android:background="?android:attr/colorEdgeEffect"
+        android:drawableRight="@drawable/ic_search_btn_right"
+        android:elevation="0dp"
+        android:padding="5dp"
+        android:text="Search"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="?attr/colorBackgroundFloating"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/song_name_inp"
+        style="@android:style/Widget.EditText"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="#4fff"
+        android:ems="10"
+        android:hint="Song Name"
+        android:inputType="text|textPersonName"
+        android:padding="2dp"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/black"
+        android:textStyle="bold"
+        android:layout_below="@+id/main_text3"
+        android:layout_marginTop="28dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/artist_name_inp"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:background="#4fff"
+        android:ems="10"
+        android:hint="Artist Name"
+        android:inputType="text|textPersonName"
+        android:textAlignment="center"
+        android:textColorHint="@android:color/holo_red_dark"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/song_name_inp"
+        android:layout_alignEnd="@+id/song_name_inp" />
+
+    <TextView
+        android:id="@+id/main_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/imageView3"
+        android:layout_marginTop="16dp"
+        android:text="Download Any Song"
+        android:textAlignment="center"
+        android:textColor="@android:color/background_light"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/main_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/imageView3"
+        android:layout_alignRight="@+id/imageView3"
+        android:layout_alignStart="@+id/imageView3"
+        android:layout_below="@+id/main_text"
+        android:layout_marginTop="20dp"
+        android:maxLines="3"
+        android:padding="0dp"
+        android:text="Download over 100 million songs "
+        android:textAlignment="center"
+        android:textColor="@android:color/background_light"
+        android:textSize="25sp" />
+
+    <co.ceryle.radiorealbutton.RadioRealButtonGroup
+        android:id="@+id/lang_grp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/search"
+        android:layout_alignEnd="@+id/artist_name_inp"
+        android:layout_alignLeft="@+id/artist_name_inp"
+        android:layout_alignRight="@+id/artist_name_inp"
+        android:layout_alignStart="@+id/artist_name_inp"
+        android:layout_marginBottom="45dp"
+        app:rrbg_animateDrawables_enter="overshoot"
+        app:rrbg_animateTexts_enter="overshoot"
+        app:rrbg_backgroundColor="#4fff"
+        app:rrbg_dividerColor="@color/black"
+        app:rrbg_dividerSize="2dp"
+        app:rrbg_radius="0dp"
+        app:rrbg_selectorColor="@color/red"
+        app:rrbg_selectorSize="4dp">
+
+        <co.ceryle.radiorealbutton.RadioRealButton
+            android:id="@+id/lang_english"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/artist_name_inp"
+            android:layout_alignStart="@+id/artist_name_inp"
+            android:layout_below="@+id/song_name_inp"
+            android:layout_marginTop="35dp"
+            app:rrb_drawable="@drawable/ic_eng"
+            app:rrb_drawableHeight="36dp"
+            app:rrb_drawablePadding="0dp"
+            app:rrb_drawableWidth="46dp"
+            app:rrb_ripple="true"
+            app:rrb_rippleColor="@color/black"
+            app:rrb_textColor="@color/black" />
+
+        <co.ceryle.radiorealbutton.RadioRealButton
+            android:id="@+id/lang_punjabi"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/lang_hindi"
+            android:layout_toEndOf="@+id/lang_hindi"
+            android:layout_toRightOf="@+id/lang_hindi"
+            app:rrb_drawable="@drawable/ic_hindi"
+            app:rrb_drawableGravity="right"
+            app:rrb_drawableHeight="36dp"
+            app:rrb_drawablePadding="0dp"
+            app:rrb_drawableWidth="46dp"
+            app:rrb_ripple="true"
+            app:rrb_rippleColor="@color/black"
+            app:rrb_textColor="@color/black" />
+
+        <co.ceryle.radiorealbutton.RadioRealButton
+            android:id="@+id/lang_hindi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/lang_other"
+            android:layout_toEndOf="@+id/lang_other"
+            android:layout_toRightOf="@+id/lang_other"
+            app:rrb_drawable="@drawable/ic_punjabi"
+            app:rrb_drawableGravity="right"
+            app:rrb_drawableHeight="36dp"
+            app:rrb_drawablePadding="0dp"
+            app:rrb_drawableWidth="46dp"
+            app:rrb_ripple="true"
+            app:rrb_rippleColor="@color/black"
+            app:rrb_text=""
+            app:rrb_textColor="@color/black" />
+
+        <co.ceryle.radiorealbutton.RadioRealButton
+            android:id="@+id/lang_other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/artist_name_inp"
+            android:layout_alignStart="@+id/artist_name_inp"
+            android:layout_below="@+id/song_name_inp"
+            android:layout_marginTop="35dp"
+            app:rrb_drawable="@drawable/ic_other_lang"
+            app:rrb_drawableHeight="36dp"
+            app:rrb_drawablePadding="0dp"
+            app:rrb_drawableWidth="46dp"
+            app:rrb_ripple="true"
+            app:rrb_rippleColor="@color/black"
+            app:rrb_text=""
+            app:rrb_textColor="@color/black" />
+    </co.ceryle.radiorealbutton.RadioRealButtonGroup>
+
+    <TextView
+        android:id="@+id/main_text3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CLICK AND HEAR"
+        android:textColor="@android:color/background_light"
+        android:textSize="14sp"
+        android:layout_below="@+id/main_text2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/english_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/lang_grp"
+        android:layout_alignLeft="@+id/artist_name_inp"
+        android:layout_alignStart="@+id/artist_name_inp"
+        android:layout_marginBottom="11dp"
+        android:layout_marginStart="16dp"
+        android:text="English"
+        android:textColor="@android:color/background_light" />
+
+    <TextView
+        android:id="@+id/hindi_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hindi"
+        android:textColor="@android:color/background_light"
+        android:layout_alignBottom="@+id/english_label"
+        android:layout_alignStart="@+id/main_text3"
+        android:layout_alignTop="@+id/english_label" />
+
+    <TextView
+        android:id="@+id/punjabi_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="42dp"
+        android:text="Punjabi"
+        android:textColor="@android:color/background_light"
+        android:layout_alignBaseline="@+id/hindi_label"
+        android:layout_alignBottom="@+id/hindi_label"
+        android:layout_toStartOf="@+id/other_label"
+        android:layout_marginEnd="44dp" />
+
+    <TextView
+        android:id="@+id/other_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/lang_grp"
+        android:layout_alignRight="@+id/lang_grp"
+        android:layout_alignTop="@+id/punjabi_label"
+        android:layout_marginEnd="13dp"
+        android:layout_marginRight="13dp"
+        android:text="Others"
+        android:textColor="@android:color/background_light" />
+
+</RelativeLayout>

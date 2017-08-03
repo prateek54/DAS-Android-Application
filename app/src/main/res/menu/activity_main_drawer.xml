@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_nav_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_lib"
+            android:icon="@drawable/ic_nav_lib"
+            android:title="Music Library" />
+        <item
+            android:id="@+id/nav_fav"
+            android:icon="@drawable/ic_nav_fav"
+            android:title="Favourite" />
+        <item
+            android:id="@+id/nav_download"
+            android:icon="@drawable/ic_nav_downloads"
+            android:title="Downloads" />
+        <item
+            android:id="@+id/nav_playlist"
+            android:icon="@drawable/ic_nav_playlist"
+            android:title="Playlist" />
+
+    </group>
+
+    <item android:title="More">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_nav_send"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_abtus"
+                android:icon="@drawable/ic_about_nav"
+                android:title="About the Developer" />
+        </menu>
+    </item>
+
+</menu>
