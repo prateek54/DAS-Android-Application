@@ -53,9 +53,18 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     // Handler to update UI timer, progress bar etc,.
     public static Handler mHandler ;
     SongInfo s;
-    private ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
+    public static ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
     public static boolean playnext, isRepeat, isShuffle;
     public static int currentSongIndex,nxtsong;
+    public static String currentSongName;
+
+    public static String getCurrentSongName() {
+        return currentSongName;
+    }
+    public static String setCurrentSongName(String SongName) {
+        PlayerService.currentSongName=SongName;
+        return currentSongName;
+    }
 
     public static int getCurrentSongIndex() {
         return currentSongIndex;
@@ -139,6 +148,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                     break;
                 case PLAY_ACTION:
                     Log.d("TEST","PLAY SERVICE");
+                    setCurrentSongIndex(currentSongIndex);
+                    currentSongName=songList.get(currentSongIndex).getSongname();
+                    setCurrentSongName(currentSongName);
+                    Log.d("UI SRVICE PLAY",currentSongName);
                     playSong(currentSongIndex);
                     notifyUI(currentSongIndex);
                     break;
@@ -175,6 +188,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     public void notifyUI(int songindex) {
+       // currentSongName=songList.get(songindex).getSongname();
         views.setImageViewBitmap(R.id.status_bar_album_art, songList.get(songindex).getThumnail());
         views.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
         bigViews.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
@@ -263,6 +277,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         if (isRepeat) {
             // repeat is on play same song again
             //notifyUI(currentSongIndex);
+            setCurrentSongIndex(currentSongIndex);
+            currentSongName=songList.get(currentSongIndex).getSongname();
+
 
             playSong(currentSongIndex);
 
@@ -270,50 +287,76 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             // shuffle is on - play a random song
             Random rand = new Random();
             currentSongIndex = rand.nextInt((songList.size() - 1) - 0 + 1) + 0;
+            setCurrentSongIndex(currentSongIndex);
+            currentSongName=songList.get(currentSongIndex).getSongname();
+
             playSong(currentSongIndex);
 
         } else {
             // check if next song is there or not
             if (currentSongIndex < (songList.size() - 1)) {
-                playSong(currentSongIndex + 1);
 
                 currentSongIndex = currentSongIndex + 1;
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
+                playSong(currentSongIndex + 1);
+
             } else {
                 // play first song
 
-                playSong(0);
 
                 currentSongIndex = 0;
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
+                playSong(0);
+
+
             }
 
         }
+        setCurrentSongName(currentSongName);
+        Log.d("UI SERVICE NXT",currentSongName);
+        notifyUI(currentSongIndex);
 
     }
 
     private void playsongprev() {
         if (isRepeat) {
             // repeat is on play same song again
+            setCurrentSongIndex(currentSongIndex);
+            currentSongName=songList.get(currentSongIndex).getSongname();
             playSong(currentSongIndex);
 
         } else if (isShuffle) {
             // shuffle is on - play a random song
             Random rand = new Random();
             currentSongIndex = rand.nextInt((songList.size() - 1) - 0 + 1) + 0;
+            setCurrentSongIndex(currentSongIndex);
+            currentSongName=songList.get(currentSongIndex).getSongname();
             playSong(currentSongIndex);
 
         } else {
             if (currentSongIndex > 0) {
-                playSong(currentSongIndex - 1);
                 currentSongIndex = currentSongIndex - 1;
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
+                playSong(currentSongIndex);
+
             } else {
                 // play last song
-                playSong(songList.size() - 1);
 
                 currentSongIndex = songList.size() - 1;
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
+                playSong(currentSongIndex);
+
+
             }
 
         }
-
+        setCurrentSongName(currentSongName);
+        Log.d("UI SERVICE PRV",currentSongName);
+        notifyUI(currentSongIndex);
     }
 
 
@@ -388,6 +431,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         status.icon = R.mipmap.ic_launcher;
         //status.contentIntent = pendingIntent;
         startForeground(101, status);
+        notifyUI(currentSongIndex);
     }
 
     @Override

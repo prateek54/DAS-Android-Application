@@ -68,7 +68,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     //song adapter
     SongAdapter songAdapter;
     //SongManager plm = new SongManager(songList);
-    int sindex = 0;
+   // int sindex = 0;
     FavDatabaseHandler db;
     MediaMetadataRetriever metaRetriver;
     SongInfo s;
@@ -92,7 +92,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     private ListView songlistView;
     // Media Player
     private PlayerService main;
-    // Handler to update UI timer, progress bar etc,.
+    // Handler to update GUI timer, progress bar etc,.
     private TimeUtilities utils;
     private int seekForwardTime = 5000; // 5000 milliseconds
     private int seekBackwardTime = 5000; // 5000 milliseconds
@@ -266,8 +266,11 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
 
                     }
                 }
+                updateui(currentSongIndex);
+
 
             }
+
         });
       /*  *//**
          * Forward button click event
@@ -324,9 +327,12 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
                 Log.d("TEST","NEXT PRESSED");
                 intent.setAction(NEXT_ACTION);
                 getActivity().startService(intent);
-                currentSongIndex = main.getCurrentSongIndex();
+                Log.d("GUI NEXt",main.getCurrentSongName());
 
-                songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+                currentSongIndex = main.getCurrentSongIndex();
+                updateui(main.getCurrentSongIndex());
+                btnPlay.setBackgroundResource(R.drawable.btn_pause);
+               // songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
                 updateProgressBar();
 
 
@@ -346,7 +352,10 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
                 intent.setAction(PREV_ACTION);
                 getActivity().startService(intent);
                 currentSongIndex = main.getCurrentSongIndex();
+                Log.d("GUI PREV",main.getCurrentSongName());
                 songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+                btnPlay.setBackgroundResource(R.drawable.btn_pause);
+
                 updateProgressBar();
 
 
@@ -538,13 +547,20 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
         intent.setAction(PLAY_ACTION);
         btnPlay.setBackgroundResource(R.drawable.btn_pause);
         getActivity().startService(intent);
-           // main.notifyUI(songIndex);
-        songTitleLabel.setText(songList.get(songIndex).getSongname());
+        // main.notifyUI(songIndex);
         // set Progress bar values
         songProgressBar.setProgress(0);
         songProgressBar.setMax(100);
+        //updateui(songIndex);
         updateProgressBar();
         btnPlay.setBackgroundResource(R.drawable.btn_pause);
+    }
+
+    private void updateui(int sindex) {
+        Log.d("GUI",""+main.getCurrentSongName()+"");
+
+        songTitleLabel.setText(songList.get(sindex).getSongname());
+
     }
 
     public void playSongurl(String url, String title) {
