@@ -33,8 +33,9 @@ public class MainActivity extends AppCompatActivity
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     FragmentTransaction transaction;
-    public MediaPlayer mp;
-    public  Handler mHandler;
+
+    public static boolean INITSTATE=false;
+
 
 
 

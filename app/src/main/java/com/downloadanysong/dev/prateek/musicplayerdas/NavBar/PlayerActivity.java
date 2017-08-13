@@ -2,9 +2,11 @@ package com.downloadanysong.dev.prateek.musicplayerdas.NavBar;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -19,6 +21,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -49,29 +52,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static com.downloadanysong.dev.prateek.musicplayerdas.MainActivity.INITSTATE;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.NEXT_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PLAY_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PREV_ACTION;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.currentSongName;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.mHandler;
+import static com.downloadanysong.dev.prateek.musicplayerdas.R.id.seekBar;
+import static com.downloadanysong.dev.prateek.musicplayerdas.R.id.textView;
 
 public class PlayerActivity extends Fragment implements android.media.MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 
 
     //Edit Text
-    EditText search_song;
+    private EditText search_song;
     //Shared Prefrences
-    LastSharedPrefrence lsp;
-    int last_played_song_index;
+    private LastSharedPrefrence lsp;
+    private int last_played_song_index;
     //Play Next
-    boolean playnext = false;
-    int nxtsong = 0;
+    private boolean playnext = false;
+    private int nxtsong = 0;
     //song adapter
-    SongAdapter songAdapter;
+    private SongAdapter songAdapter;
     //SongManager plm = new SongManager(songList);
    // int sindex = 0;
-    FavDatabaseHandler db;
-    MediaMetadataRetriever metaRetriver;
-    SongInfo s;
+    private FavDatabaseHandler db;
+    private MediaMetadataRetriever metaRetriver;
+    private SongInfo s;
     //Buttons
     private Button btnPlay;
     private Button btnForward;
@@ -82,18 +89,18 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     private Button btnRepeat;
     private Button btnShuffle;
     //seekbar
-    private SeekBar songProgressBar;
+    private static SeekBar songProgressBar;
     //textviews
-    private TextView songTitleLabel;
+    public static TextView songTitleLabel;
     private TextView songCurrentDurationLabel;
 
     private TextView songTotalDurationLabel;
     //list of song
     private ListView songlistView;
     // Media Player
-    private PlayerService main;
+    public static PlayerService main;
     // Handler to update GUI timer, progress bar etc,.
-    private TimeUtilities utils;
+    private static TimeUtilities utils;
     private int seekForwardTime = 5000; // 5000 milliseconds
     private int seekBackwardTime = 5000; // 5000 milliseconds
     private int currentSongIndex = 0;
@@ -101,7 +108,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     private boolean isRepeat = false;
     private ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
     private RecyclerView recyclerView;
-    public int progress;
+    public static int progress;
 
     /**
      * Background Runnable thread
@@ -183,8 +190,8 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
         super.onResume();
         if (isMyServiceRunning(PlayerService.class))
         {
-            songTitleLabel.setText(songList.get(main.getCurrentSongIndex()).getSongname());
-            updateProgressBar();
+           // songTitleLabel.setText(main.currentSongName);
+           updateProgressBar();
             Log.d("TEST","RESUME HUA AND SERTVICE RUNNING");
         }
     }
@@ -206,13 +213,29 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
         search_song = (EditText) rootView.findViewById(R.id.search_all_song);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.list_view_songs);
+        if (INITSTATE==false)
+        {
+            //APP PEHEL BAR CHLAE
+            INITSTATE=true;
+            songTitleLabel.setText("Please Select Song");
+        }
+        else {
+            currentSongIndex=main.getCurrentSongIndex();
+            songTitleLabel.setText(main.getCurrentSongName());
+            if (main.mp.isPlaying())
+            {
+                btnPlay.setBackgroundResource(R.drawable.btn_pause);
+            }
+        }
 
         // songCurrentDurationLabel = (TextView) rootView.findViewById(R.id.songCurrentDurationLabel);
         // songTotalDurationLabel = (TextView) rootView.findViewById(R.id.songTotalDurationLabel);
 
 
     }
-    public final Runnable mUpdateTimeTask = new Runnable() {
+
+
+    public static Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
             long totalDuration = main.mp.getDuration();
             long currentDuration = main.mp.getCurrentPosition();
@@ -225,12 +248,11 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
             // Updating progress bar
             progress = utils.getProgressPercentage(currentDuration, totalDuration);
             Log.d("Progress", "" + progress);
-
+            songProgressBar.setProgress(progress);
             // Running this thread after 100 milliseconds
             mHandler.postDelayed(this, 100);
         }
     };
-
     //LISTNER TO DIFFRENT BUTTONS
     private void listners() {
         Log.d("TEST","LISTNERS CREATED");
@@ -323,17 +345,19 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
 
             @Override
             public void onClick(View arg0) {
+                Log.d("CHECK","NEXT BEFORE");//1st called
                 Intent intent = new Intent(getActivity(), PlayerService.class);
                 Log.d("TEST","NEXT PRESSED");
                 intent.setAction(NEXT_ACTION);
                 getActivity().startService(intent);
+                Log.d("CHECK","NEXT AFTER SERVICE");//2nd called
                 Log.d("GUI NEXt",main.getCurrentSongName());
-
                 currentSongIndex = main.getCurrentSongIndex();
                 updateui(main.getCurrentSongIndex());
                 btnPlay.setBackgroundResource(R.drawable.btn_pause);
-               // songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+               // //songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
                 updateProgressBar();
+
 
 
             }
@@ -353,9 +377,8 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
                 getActivity().startService(intent);
                 currentSongIndex = main.getCurrentSongIndex();
                 Log.d("GUI PREV",main.getCurrentSongName());
-                songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+                //songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
                 btnPlay.setBackgroundResource(R.drawable.btn_pause);
-
                 updateProgressBar();
 
 
@@ -483,7 +506,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
                     final long song_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     final long album_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
                     final String url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    Log.d("SONGGG", "fetchsong: " + song_id);
+                    Log.d("SONGGG", "NORMAL: " + name);
                     s = new SongInfo(name, artist, url, album_id, false);
                     songList.add(s);
 
@@ -541,25 +564,27 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
      */
     public void playSong(int songIndex) {
 
-        Intent intent = new Intent(getActivity(), PlayerService.class);
-        Log.d("TEST","PLAY FUNCTION");
-        main.setCurrentSongIndex(songIndex);
-        intent.setAction(PLAY_ACTION);
-        btnPlay.setBackgroundResource(R.drawable.btn_pause);
-        getActivity().startService(intent);
+            Intent intent = new Intent(getActivity(), PlayerService.class);
+            Log.d("TEST", "PLAY FUNCTION");
+            main.setCurrentSongIndex(songIndex);
+            intent.setAction(PLAY_ACTION);
+            btnPlay.setBackgroundResource(R.drawable.btn_pause);
+            getActivity().startService(intent);
+            btnPlay.setBackgroundResource(R.drawable.btn_pause);
+
+
         // main.notifyUI(songIndex);
         // set Progress bar values
         songProgressBar.setProgress(0);
         songProgressBar.setMax(100);
         //updateui(songIndex);
         updateProgressBar();
-        btnPlay.setBackgroundResource(R.drawable.btn_pause);
     }
 
     private void updateui(int sindex) {
         Log.d("GUI",""+main.getCurrentSongName()+"");
 
-        songTitleLabel.setText(songList.get(sindex).getSongname());
+        //songTitleLabel.setText(songList.get(sindex).getSongname());
 
     }
 
@@ -572,7 +597,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
             PlayerService.mp.start();
             // Displaying Song title
             String songTitle = title;
-            songTitleLabel.setText(songTitle);
+            //songTitleLabel.setText(songTitle);
 
             // Changing Button Image to pause image
             //btnPlay.setBackgroundResource(R.drawable.btn_pause);

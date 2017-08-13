@@ -16,8 +16,8 @@
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_height="54dp"
+        android:layout_weight="1.38"
         android:text="SONG NAME"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_medium"

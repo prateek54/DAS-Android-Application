@@ -48,6 +48,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public static String CurrentSongName="PLEASE SEKECT SONG";
     public static boolean CurrentSongState=false;
 
+
     public Notification status;
     public RemoteViews views,bigViews;
     // Handler to update UI timer, progress bar etc,.
@@ -143,8 +144,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                 case STOPFOREGROUND_ACTION:
                     //denotify();
                     stopForeground(true);
-                    //System.exit(0);
-                    //stopSelf();
+                    onDestroy();
                     break;
                 case PLAY_ACTION:
                     Log.d("TEST","PLAY SERVICE");
@@ -152,6 +152,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                     currentSongName=songList.get(currentSongIndex).getSongname();
                     setCurrentSongName(currentSongName);
                     Log.d("UI SRVICE PLAY",currentSongName);
+                    PlayerActivity.songTitleLabel.setText(currentSongName);
+
                     playSong(currentSongIndex);
                     notifyUI(currentSongIndex);
                     break;
@@ -189,6 +191,14 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     public void notifyUI(int songindex) {
        // currentSongName=songList.get(songindex).getSongname();
+        if (mp.isPlaying())
+        {
+            views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
+            bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
+        }else {
+            views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
+            bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
+        }
         views.setImageViewBitmap(R.id.status_bar_album_art, songList.get(songindex).getThumnail());
         views.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
         bigViews.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
@@ -227,7 +237,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                     final long song_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
                     final long album_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
                     final String url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    Log.d("SONGGG", "fetchsong: " + song_id);
+                   // Log.d("SONGGG", "SERVICE: " + name);
                     s = new SongInfo(name, artist, url, album_id, false);
                     songList.add(s);
 
@@ -251,6 +261,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mp.prepare();
             mp.start();
             notifyUI(songIndex);
+            Log.d("SONGGG","index : "+songIndex+"");
             views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
             bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
 
@@ -299,7 +310,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                 currentSongIndex = currentSongIndex + 1;
                 setCurrentSongIndex(currentSongIndex);
                 currentSongName=songList.get(currentSongIndex).getSongname();
-                playSong(currentSongIndex + 1);
+                playSong(currentSongIndex);
 
             } else {
                 // play first song
@@ -316,6 +327,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
         setCurrentSongName(currentSongName);
         Log.d("UI SERVICE NXT",currentSongName);
+        PlayerActivity.songTitleLabel.setText(currentSongName);
+
         notifyUI(currentSongIndex);
 
     }
@@ -355,6 +368,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         }
         setCurrentSongName(currentSongName);
+        PlayerActivity.songTitleLabel.setText(currentSongName);
+
         Log.d("UI SERVICE PRV",currentSongName);
         notifyUI(currentSongIndex);
     }
