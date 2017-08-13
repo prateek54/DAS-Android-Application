@@ -50,12 +50,15 @@ import com.downloadanysong.dev.prateek.musicplayerdas.utils.TimeUtilities;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import static com.downloadanysong.dev.prateek.musicplayerdas.MainActivity.INITSTATE;
+import static com.downloadanysong.dev.prateek.musicplayerdas.MainActivity.lsp;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.NEXT_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PLAY_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PREV_ACTION;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.currentSongIndex;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.currentSongName;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.mHandler;
 import static com.downloadanysong.dev.prateek.musicplayerdas.R.id.seekBar;
@@ -67,7 +70,6 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     //Edit Text
     private EditText search_song;
     //Shared Prefrences
-    private LastSharedPrefrence lsp;
     private int last_played_song_index;
     //Play Next
     private boolean playnext = false;
@@ -89,7 +91,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     private Button btnRepeat;
     private Button btnShuffle;
     //seekbar
-    private static SeekBar songProgressBar;
+    public static SeekBar songProgressBar;
     //textviews
     public static TextView songTitleLabel;
     private TextView songCurrentDurationLabel;
@@ -103,7 +105,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     private static TimeUtilities utils;
     private int seekForwardTime = 5000; // 5000 milliseconds
     private int seekBackwardTime = 5000; // 5000 milliseconds
-    private int currentSongIndex = 0;
+    public static int currentSongIndex ;
     private boolean isShuffle = false;
     private boolean isRepeat = false;
     private ArrayList<SongInfo> songList = new ArrayList<SongInfo>();
@@ -153,7 +155,6 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
         //main.mp = new MediaPlayer();
         utils = new TimeUtilities();
         metaRetriver = new MediaMetadataRetriever();
-        lsp = new LastSharedPrefrence(getActivity().getApplicationContext());
 
 
     }
@@ -213,19 +214,60 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
         search_song = (EditText) rootView.findViewById(R.id.search_all_song);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.list_view_songs);
-        if (INITSTATE==false)
-        {
-            //APP PEHEL BAR CHLAE
-            INITSTATE=true;
-            songTitleLabel.setText("Please Select Song");
-        }
-        else {
-            currentSongIndex=main.getCurrentSongIndex();
-            songTitleLabel.setText(main.getCurrentSongName());
-            if (main.mp.isPlaying())
-            {
-                btnPlay.setBackgroundResource(R.drawable.btn_pause);
+
+        try {
+            Log.d("ERROR","1");
+
+            if (INITSTATE==false)
+            {            Log.d("ERROR","2");
+
+                //APP PEHEL BAR CHLAE
+                INITSTATE=true;
+                songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+
+                if (lsp.checklastplayed()==true)
+                {     HashMap<String, Integer> user = lsp.fetchlastsong();
+                    songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+                    int c=user.get("songpos");
+
+                    progress=user.get("currentpos");
+                    Log.d("ERROR3", progress+" FETCH");
+
+                    songProgressBar.setProgress(progress);
+                }            }
+            else {
+                Log.d("ERROR","3");
+
+
+                if (main.mp!=null)
+                {      Log.d("ERROR","4");
+                    currentSongIndex=main.getCurrentSongIndex();
+                    songTitleLabel.setText(main.getCurrentSongName());
+                    if (main.mp.isPlaying())
+                    {
+                        btnPlay.setBackgroundResource(R.drawable.btn_pause);
+                    }
+                    main.mp.start();
+                }
+
+                if (lsp.checklastplayed()==true)
+                {     HashMap<String, Integer> user = lsp.fetchlastsong();
+                    songTitleLabel.setText(songList.get(currentSongIndex).getSongname());
+                    int c=user.get("songpos");
+
+                    progress=user.get("currentpos");
+                    Log.d("ERROR3", progress+" FETCH");
+
+                    songProgressBar.setProgress(progress);
+                }
+
             }
+
+        }catch (Exception e)
+        {
+            Log.d("ERROR","SAME bRUH :P");
+            //main.mp.setOnCompletionListener(this); // Important
+
         }
 
         // songCurrentDurationLabel = (TextView) rootView.findViewById(R.id.songCurrentDurationLabel);
@@ -720,6 +762,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
     public void updateProgressBar() {
         main.mHandler.postDelayed(mUpdateTimeTask, 100);
     }
+
 
 
 }

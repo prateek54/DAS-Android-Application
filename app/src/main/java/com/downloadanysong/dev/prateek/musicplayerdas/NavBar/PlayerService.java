@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.downloadanysong.dev.prateek.musicplayerdas.Helper.LastSharedPrefrence;
 import com.downloadanysong.dev.prateek.musicplayerdas.MainActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.Models.SongInfo;
 import com.downloadanysong.dev.prateek.musicplayerdas.R;
@@ -38,12 +39,7 @@ import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.AC
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.STOPFOREGROUND_ACTION;
 
 public class PlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
-    private final static String PLAY = "play";
-    private final static String PAUSE = "pause";
-    private final static String NEXT = "next";
-    private final static String PREV = "prev";
-    private final static String STARTFOREGROUND = "startforeground";
-    private final static String STOPFOREGROUND = "stopforeground";
+
     public static MediaPlayer mp;
     public static String CurrentSongName="PLEASE SEKECT SONG";
     public static boolean CurrentSongState=false;
@@ -120,6 +116,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Log.d("TEST","ON CREATE");
         fetchsong();
 
+
     }
 
     @Override
@@ -144,7 +141,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                 case STOPFOREGROUND_ACTION:
                     //denotify();
                     stopForeground(true);
-                    onDestroy();
+                    Intent intent1 = new Intent("destroyall");
+                    sendBroadcast(intent1);
+                    stopSelf();
                     break;
                 case PLAY_ACTION:
                     Log.d("TEST","PLAY SERVICE");
@@ -186,7 +185,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             }
 
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     public void notifyUI(int songindex) {
@@ -210,6 +209,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private void initializeplayer() {
         Log.d("TEST","INIT PALYER");
         mp.setOnCompletionListener(this); // Important
+        mp.setOnPreparedListener(this);
     }
 
     private void fetchsong() {
@@ -449,13 +449,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         notifyUI(currentSongIndex);
     }
 
-    @Override
-    public void onDestroy() {
-        mp.stop();
-        mp.release();
 
-        //status.cancel(101);
-    }
 
     /**
      * On Song Playing completed
@@ -510,7 +504,16 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        mp.start();
 
+    }
+    @Override
+    public void onDestroy() {
+        mp.stop();
+        mp.release();
+        mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
+
+        //status.cancel(101);
     }
 
 }

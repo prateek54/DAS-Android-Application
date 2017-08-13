@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import java.util.HashMap;
+
 /**
  * Created by prateek on 26-06-2017.
  */
@@ -42,34 +44,35 @@ public class LastSharedPrefrence {
     }
 
     public boolean checklastplayed() {
-        if (!this.NoLastPlayed()) {
+        if (this.NoLastPlayed()==false) {
             Log.d("LAST", String.valueOf(this.NoLastPlayed()));
-            last_song_index =0;
             return false;
-
-
         }
         return true;
     }
-    public void storelastsong(String songname ,String artistname,String songpath,int position,int currentpos){
-        editor.putString(SONGNAME,songname);
-        editor.putString(ARTISTNAME,artistname);
-        editor.putString(SONGPATH,songpath);
+    public void storelastsong(int position,int currentpos){
         editor.putInt(SONGPOS,position);
+        Log.d("ERROR2",position+"store");
         editor.putInt(CURRENTPOS,currentpos);
         editor.commit(); // commit changes
 
     }
-    public void fetchlastsong(String songname ,String artistname,String songpath,int position,int currentpos){
+    public HashMap<String, Integer> fetchlastsong(){
 
-        songname =sharedPreferences.getString(SONGNAME,null);
+       /* songname =sharedPreferences.getString(SONGNAME,null);
         artistname = sharedPreferences.getString(ARTISTNAME,null);
-        songpath = sharedPreferences.getString(SONGPATH,null);
-        position = sharedPreferences.getInt(SONGPOS, 0);
-        currentpos = sharedPreferences.getInt(CURRENTPOS, 0);
+        songpath = sharedPreferences.getString(SONGPATH,null);*/
+        int position = sharedPreferences.getInt(SONGPOS, 0);
+        int currentpos = sharedPreferences.getInt(CURRENTPOS, 0);
+        Log.d("ERROR2",currentpos+"fetch");
+        HashMap<String, Integer> user = new HashMap<>();
+        // user name
+        user.put(SONGPOS, position);
+        user.put(CURRENTPOS, currentpos);
+        return user;
 
 
-            }
+    }
     public void deletelastplayed(){
         editor.clear();
         editor.commit();

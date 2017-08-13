@@ -2,7 +2,10 @@ package com.downloadanysong.dev.prateek.musicplayerdas;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -18,12 +21,20 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.downloadanysong.dev.prateek.musicplayerdas.Helper.LastSharedPrefrence;
 import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.AboutActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerActivity;
+import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService;
+
+import java.util.HashMap;
+
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.currentSongIndex;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService.mHandler;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -35,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     FragmentTransaction transaction;
 
     public static boolean INITSTATE=false;
+    public static LastSharedPrefrence lsp;
 
 
 
@@ -57,9 +69,23 @@ public class MainActivity extends AppCompatActivity
         verifyStoragePermissions(this);
         transaction = getSupportFragmentManager().beginTransaction();
         setTitle("Download Any Song");
-        transaction.replace(R.id.ccontent, new PlayerActivity());
-        transaction.commit();
+        try {
+            transaction.replace(R.id.ccontent, new PlayerActivity());
+            transaction.commit();
+        }catch (Exception e)
+        {
+            Log.d("ERROR","thread ki koi dikkat");
+        }
 
+       registerReceiver(mMessageReceiver, new IntentFilter("destroyall"));
+        lsp = new LastSharedPrefrence(getApplicationContext());
+        if (lsp.checklastplayed()==true) {
+            HashMap<String, Integer> user = lsp.fetchlastsong();
+            Log.d("ERROR2", String.valueOf(user.get("songpos"))+"ACT FETCH");
+            PlayerService.setCurrentSongIndex(user.get("songpos")-1);
+            PlayerActivity.currentSongIndex=user.get("songpos")-1;
+            PlayerActivity.progress=user.get("currentpos");
+        }
 
     }
 
@@ -75,6 +101,17 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            PlayerService.mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
+            finish();
+
+        }
+
+    };
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -172,20 +209,40 @@ public class MainActivity extends AppCompatActivity
             title = "About Us";
 
         }
-        transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.ccontent, selectedFragment);
-        transaction.commit();
-        if (title != null && findViewById(R.id.toolbar) != null) setTitle(title);
+        try{
+            transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.ccontent, selectedFragment);
+            transaction.commit();
+            if (title != null && findViewById(R.id.toolbar) != null) setTitle(title);
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+        }catch (Exception e){}
+        Log.d("ERROR","PTA NHI AB");
+
         return true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(mMessageReceiver);
+        PlayerService.mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
+        lsp.lastPlayed();
+
+        lsp.storelastsong(PlayerService.currentSongIndex,PlayerActivity.progress);
+       /* if (lsp.checklastplayed()==false)
+        {
+
+        }
+        else {
+            lsp.lastPlayed();
+            lsp.storelastsong(PlayerService.currentSongIndex,PlayerActivity.progress);
+
+
+        }*/
+
 
     }
 }
