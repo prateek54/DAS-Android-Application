@@ -30,6 +30,7 @@ import com.downloadanysong.dev.prateek.musicplayerdas.Helper.LastSharedPrefrence
 import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.AboutActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerService;
+import com.downloadanysong.dev.prateek.musicplayerdas.Receivers.HeadBroadcast;
 
 import java.util.HashMap;
 
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
     FragmentTransaction transaction;
-
+    HeadBroadcast headb =   new HeadBroadcast();
     public static boolean INITSTATE=false;
     public static LastSharedPrefrence lsp;
 
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         transaction = getSupportFragmentManager().beginTransaction();
         setTitle("Download Any Song");
         try {
-            transaction.replace(R.id.ccontent, new PlayerActivity());
+            transaction.replace(R.id.ccontent, new AboutActivity());
             transaction.commit();
         }catch (Exception e)
         {
@@ -78,6 +79,9 @@ public class MainActivity extends AppCompatActivity
         }
 
        registerReceiver(mMessageReceiver, new IntentFilter("destroyall"));
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(headb, filter);
+
         lsp = new LastSharedPrefrence(getApplicationContext());
         if (lsp.checklastplayed()==true) {
             HashMap<String, Integer> user = lsp.fetchlastsong();
@@ -85,11 +89,12 @@ public class MainActivity extends AppCompatActivity
             PlayerService.setCurrentSongIndex(user.get("songpos")-1);
             PlayerActivity.currentSongIndex=user.get("songpos")-1;
             PlayerActivity.progress=user.get("currentpos");
+            Log.d("PROGRESS",PlayerActivity.progress+"");
         }
 
     }
 
-    private void checkUserPermission() {
+    private  void checkUserPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -107,11 +112,15 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
 
             PlayerService.mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
+            lsp.lastPlayed();
+
+            lsp.storelastsong(PlayerService.currentSongIndex,PlayerActivity.progress);
             finish();
 
         }
 
     };
+
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -184,7 +193,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         String title = "Home";
         setTitle(title);
-        Fragment selectedFragment = PlayerActivity.newInstance();
+        Fragment selectedFragment = AboutActivity.newInstance();
         if (id == R.id.nav_search) {
             selectedFragment = PlayerActivity.newInstance();
             title = "Home";
@@ -201,7 +210,7 @@ public class MainActivity extends AppCompatActivity
             // this runs, for example, after a button click
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
-            intent.putExtra(android.content.Intent.EXTRA_TEXT, "Hey I just found this App with which you can Download Any Song : playsore/AppUrl");
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, "Hey I just found this App with which you can Download Any Song : com.das");
             startActivity(intent);
 
         } else if (id == R.id.nav_abtus) {
@@ -228,6 +237,8 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mMessageReceiver);
+        unregisterReceiver(headb);
+
         PlayerService.mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
         lsp.lastPlayed();
 

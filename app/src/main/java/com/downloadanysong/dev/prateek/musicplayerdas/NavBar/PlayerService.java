@@ -4,10 +4,12 @@ import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.WallpaperManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.provider.Settings;
 import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import com.downloadanysong.dev.prateek.musicplayerdas.Helper.LastSharedPrefrence;
@@ -31,12 +34,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.LIST_DOWN;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.LIST_EXT;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.LIST_INT;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.NEXT_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PAUSE_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PLAY_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.PREV_ACTION;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.RES_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.STARTFOREGROUND_ACTION;
 import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.Constants.ACTION.STOPFOREGROUND_ACTION;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerActivity.btnPlay;
+import static com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerActivity.songview;
 
 public class PlayerService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
@@ -44,9 +53,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     public static String CurrentSongName="PLEASE SEKECT SONG";
     public static boolean CurrentSongState=false;
 
-
+    Bitmap defwall;
     public Notification status;
     public RemoteViews views,bigViews;
+    WallpaperManager myWallpaperManager;
     // Handler to update UI timer, progress bar etc,.
     public static Handler mHandler ;
     SongInfo s;
@@ -89,6 +99,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     private String command;
     private TimeUtilities utils;
+    String d = "external";
+
     /**
      * Background Runnable thread
      */
@@ -114,8 +126,10 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         super.onCreate();
         // nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Log.d("TEST","ON CREATE");
-        fetchsong();
-
+        fetchsong(d);
+        myWallpaperManager
+                = WallpaperManager.getInstance(getApplicationContext());
+        defwall= UtilFunctions.drawableToBitmap(myWallpaperManager.getDrawable());
 
     }
 
@@ -133,10 +147,20 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             currentSongIndex = bundle.getInt("currentSongIndex");
             nxtsong = bundle.getInt("nxtsong");*/
             showNotification();
-
+           // Intent head = new Intent(Intent.ACTION_HEADSET_PLUG);
+           // sendBroadcast(head);
             switch (command) {
                 case STARTFOREGROUND_ACTION:
                     //notify();
+                    break;
+                case LIST_EXT:
+                    fetchsong("external");
+                    break;
+                case LIST_DOWN:
+                    fetchsong("download");
+                    break;
+                case LIST_INT:
+                    fetchsong("internal");
                     break;
                 case STOPFOREGROUND_ACTION:
                     //denotify();
@@ -152,22 +176,58 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                     setCurrentSongName(currentSongName);
                     Log.d("UI SRVICE PLAY",currentSongName);
                     PlayerActivity.songTitleLabel.setText(currentSongName);
-
+                    showNotification();
                     playSong(currentSongIndex);
-                    notifyUI(currentSongIndex);
+
+
+                    break;
+                case RES_ACTION:
+                    setCurrentSongIndex(currentSongIndex);
+                    currentSongName=songList.get(currentSongIndex).getSongname();
+                    setCurrentSongName(currentSongName);
+                    Log.d("UI SRVICE PLAY",currentSongName);
+                    PlayerActivity.songTitleLabel.setText(currentSongName);
+                    showNotification();
+
+                    if (mp== null) {
+                        playSong(currentSongIndex);
+                    }
+
+                    if (mp.isPlaying()) {
+                        if (mp!= null) {
+                            PlayerService.mp.pause();
+                            Log.d("NOTI","PAUSE ");
+
+
+                            // Changing button image to play button
+                            btnPlay.setBackgroundResource(R.drawable.btn_play);
+
+                        }
+                    } else {
+                        // Resume song
+                        Log.d("NOTI","RESUME ");
+
+                        if (mp!= null) {
+
+                            PlayerService.mp.start();
+
+                            btnPlay.setBackgroundResource(R.drawable.btn_pause);
+
+                        }
+                    }
+                    showNotification();
+
                     break;
                 case PAUSE_ACTION:
                     mp.pause();
-                    notifyUI(currentSongIndex);
-                    views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
-                    bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
-
+                   // notifyUI(currentSongIndex);
+                    showNotification();
                     Log.d("TEST","PAUSE SERVICE");
 
                     break;
                 case NEXT_ACTION:
                     playsongnext();
-                    notifyUI(currentSongIndex);
+                    showNotification();
 
                     Log.d("TEST","NEXT SERVICE");
 
@@ -175,8 +235,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                     break;
                 case PREV_ACTION:
                     playsongprev();
-                    notifyUI(currentSongIndex);
-
+                    showNotification();
 
                     Log.d("TEST","PREV SERVICE");
 
@@ -188,23 +247,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         return START_NOT_STICKY;
     }
 
-    public void notifyUI(int songindex) {
-       // currentSongName=songList.get(songindex).getSongname();
-        if (mp.isPlaying())
-        {
-            views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
-            bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_play);
-        }else {
-            views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
-            bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
-        }
-        views.setImageViewBitmap(R.id.status_bar_album_art, songList.get(songindex).getThumnail());
-        views.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
-        bigViews.setTextViewText(R.id.status_bar_track_name, songList.get(songindex).getSongname());
-        views.setTextViewText(R.id.status_bar_artist_name, songList.get(songindex).getArtistname());
-        bigViews.setTextViewText(R.id.status_bar_artist_name, songList.get(songindex).getArtistname());
-        bigViews.setTextViewText(R.id.status_bar_album_name, "Album Name");
-    }
 
     private void initializeplayer() {
         Log.d("TEST","INIT PALYER");
@@ -212,43 +254,25 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         mp.setOnPreparedListener(this);
     }
 
-    private void fetchsong() {
+    private void fetchsong(String dir) {
 
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!=0";
-        ContentResolver musicResolve = this.getApplicationContext().getContentResolver();
-        Cursor cursor = musicResolve.query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
+        if (dir=="download")
+        {
+            songList=UtilFunctions.downloadSongs(getApplicationContext());
 
-                  /*We Can get  All these
-                    MediaStore.Audio.Media.TITLE
-                    MediaStore.Audio.Media.DURATION
-                    MediaStore.Audio.Media.ARTIST
-                    MediaStore.Audio.Media._ID
-                    MediaStore.Audio.Media.ALBUM
-                    MediaStore.Audio.Media.DISPLAY_NAME
-                    MediaStore.Audio.Media.DATA
-                    MediaStore.Audio.Media.ALBUM_ID*/
-
-                    final String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                    final String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                    final long song_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-                    final long album_id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                    final String url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                   // Log.d("SONGGG", "SERVICE: " + name);
-                    s = new SongInfo(name, artist, url, album_id, false);
-                    songList.add(s);
+        }else if (dir=="internal")
+        {
+            songList=UtilFunctions.internalSongs(getApplicationContext());
 
 
-                } while (cursor.moveToNext());
-            }
-
-            cursor.close();
-
+        }else
+        {
+            songList=UtilFunctions.externalSongs(getApplicationContext());
 
         }
+
+
+
     }
 
     public void playSong(int songIndex) {
@@ -260,7 +284,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
             mp.setDataSource(songList.get(songIndex).getSongUrl());
             mp.prepare();
             mp.start();
-            notifyUI(songIndex);
+            //notifyUI(songIndex);
             Log.d("SONGGG","index : "+songIndex+"");
             views.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
             bigViews.setImageViewResource(R.id.status_bar_play,R.drawable.btn_pause);
@@ -329,7 +353,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         Log.d("UI SERVICE NXT",currentSongName);
         PlayerActivity.songTitleLabel.setText(currentSongName);
 
-        notifyUI(currentSongIndex);
 
     }
 
@@ -369,40 +392,40 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
         setCurrentSongName(currentSongName);
         PlayerActivity.songTitleLabel.setText(currentSongName);
-
         Log.d("UI SERVICE PRV",currentSongName);
-        notifyUI(currentSongIndex);
     }
 
 
     private void showNotification() {
-            // Using RemoteViews to bind custom layouts into Notification
-         views = new RemoteViews(getPackageName(),
+        // Using RemoteViews to bind custom layouts into Notification
+        views = new RemoteViews(getPackageName(),
                 R.layout.status_bar);
-         bigViews = new RemoteViews(getPackageName(),
+        bigViews = new RemoteViews(getPackageName(),
                 R.layout.status_bar_expanded);
 
         // showing default album image
         //views.setViewVisibility(R.id.status_bar_icon, View.VISIBLE);
-        views.setViewVisibility(R.id.status_bar_album_art, View.VISIBLE);
+        bigViews.setViewVisibility(R.id.status_bar_album_art, View.VISIBLE);
         bigViews.setImageViewBitmap(R.id.status_bar_album_art,songList.get(currentSongIndex).getThumnail());
 
         Intent notificationIntent = new Intent(this, PlayerActivity.class);
-         notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
+        notificationIntent.setAction(Constants.ACTION.MAIN_ACTION);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+
+        Intent playIntent = new Intent(this, PlayerService.class);
+        playIntent.setAction(RES_ACTION);
+        PendingIntent pplayIntent = PendingIntent.getService(this, 0,
+                playIntent, 0);
+
 
 
         Intent previousIntent = new Intent(this, PlayerService.class);
         previousIntent.setAction(PREV_ACTION);
         PendingIntent ppreviousIntent = PendingIntent.getService(this, 0,
                 previousIntent, 0);
-
-        Intent playIntent = new Intent(this, PlayerService.class);
-        playIntent.setAction(PLAY_ACTION);
-        PendingIntent pplayIntent = PendingIntent.getService(this, 0,
-                playIntent, 0);
 
         Intent nextIntent = new Intent(this, PlayerService.class);
         nextIntent.setAction(NEXT_ACTION);
@@ -414,9 +437,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0,
                 closeIntent, 0);
 
-
         views.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
         bigViews.setOnClickPendingIntent(R.id.status_bar_play, pplayIntent);
+
 
         views.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
         bigViews.setOnClickPendingIntent(R.id.status_bar_next, pnextIntent);
@@ -426,10 +449,40 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
         views.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
         bigViews.setOnClickPendingIntent(R.id.status_bar_collapse, pcloseIntent);
-        views.setImageViewResource(R.id.status_bar_play,
-                R.drawable.apollo_holo_dark_pause);
-        bigViews.setImageViewResource(R.id.status_bar_play,
-                R.drawable.apollo_holo_dark_pause);
+        long albumId = songList.get(currentSongIndex).getId();
+        Bitmap albumArt = UtilFunctions.getAlbumart(getApplicationContext(), albumId);
+        if (albumArt!=null) {
+
+            views.setImageViewBitmap(R.id.status_bar_album_art,albumArt);
+            bigViews.setImageViewBitmap(R.id.status_bar_album_art, albumArt);
+            songview.setImageBitmap(albumArt);
+
+        }
+        else{
+            albumArt = UtilFunctions.getDefaultAlbumArt(getApplicationContext());
+            bigViews.setImageViewBitmap(R.id.status_bar_album_art,albumArt);
+            views.setImageViewBitmap(R.id.status_bar_album_art,albumArt);
+            songview.setImageBitmap(albumArt);
+
+
+        }
+
+        if (android.os.Build.VERSION.SDK_INT>24)
+        {
+            try {
+                if (albumArt!=null) {
+                    myWallpaperManager.setBitmap(albumArt,null, true, WallpaperManager.FLAG_LOCK);
+
+                }
+                else {
+                    myWallpaperManager.setBitmap(defwall,null, true, WallpaperManager.FLAG_LOCK);
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
 
         views.setTextViewText(R.id.status_bar_track_name, songList.get(currentSongIndex).getSongname());
         bigViews.setTextViewText(R.id.status_bar_track_name, songList.get(currentSongIndex).getSongname());
@@ -446,7 +499,6 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         status.icon = R.mipmap.ic_launcher;
         //status.contentIntent = pendingIntent;
         startForeground(101, status);
-        notifyUI(currentSongIndex);
     }
 
 
@@ -461,38 +513,52 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         // check for repeat is ON or OFF
         if (playnext) {
             currentSongIndex = nxtsong;
-            playSong(currentSongIndex);
             playnext = false;
+            setCurrentSongIndex(currentSongIndex);
+            currentSongName=songList.get(currentSongIndex).getSongname();
 
         } else {
             if (isRepeat) {
                 // repeat is on play same song again
-                playSong(currentSongIndex);
+                currentSongIndex=currentSongIndex;
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
 
             } else if (isShuffle) {
                 // shuffle is on - play a random song
                 Random rand = new Random();
                 currentSongIndex = rand.nextInt((songList.size() - 1) - 0 + 1) + 0;
-                playSong(currentSongIndex);
+                setCurrentSongIndex(currentSongIndex);
+                currentSongName=songList.get(currentSongIndex).getSongname();
 
             } else {
                 // no repeat or shuffle ON - play next song
                 Log.d("PNS", "PLAYING NXT SONG");
                 if (currentSongIndex < (songList.size() - 1)) {
-                    playSong(currentSongIndex + 1);
                     currentSongIndex = currentSongIndex + 1;
+                    setCurrentSongIndex(currentSongIndex);
+                    currentSongName=songList.get(currentSongIndex).getSongname();
 
                 } else {
                     // play first song
                     Log.d("CULPRIT IS","PAPAAAAAAA");
 
-                    playSong(0);
                     currentSongIndex = 0;
+                    setCurrentSongIndex(currentSongIndex);
+                    currentSongName=songList.get(currentSongIndex).getSongname();
+
 
                 }
 
             }
         }
+
+        setCurrentSongName(currentSongName);
+        PlayerActivity.songTitleLabel.setText(currentSongName);
+        songview.setImageBitmap(songList.get(currentSongIndex).getThumnail());
+
+        showNotification();
+        playSong(currentSongIndex);
 
 
     }
@@ -504,7 +570,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
+       // mp.start();
 
     }
     @Override
@@ -512,6 +578,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         mp.stop();
         mp.release();
         mHandler.removeCallbacks(PlayerActivity.mUpdateTimeTask);
+        try {
+            myWallpaperManager.setBitmap(defwall);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //status.cancel(101);
     }

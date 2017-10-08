@@ -55,6 +55,10 @@ dependencies {
     compile 'com.google.android.exoplayer:exoplayer-core:r2.4.3'
     compile 'com.google.android.exoplayer:exoplayer-dash:r2.4.3'
     compile 'com.google.android.exoplayer:exoplayer-ui:r2.4.3'
+
+    //Real Radio Button
+    compile 'com.github.ceryle:RadioRealButton:v2.1.1'
+
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.0.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
     testCompile 'junit:junit:4.12'

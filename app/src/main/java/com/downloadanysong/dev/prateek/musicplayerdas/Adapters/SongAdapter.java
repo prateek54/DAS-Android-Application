@@ -1,6 +1,7 @@
 package com.downloadanysong.dev.prateek.musicplayerdas.Adapters;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.downloadanysong.dev.prateek.musicplayerdas.MainActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.Models.Favourite;
 import com.downloadanysong.dev.prateek.musicplayerdas.Models.ImageBitmap;
 import com.downloadanysong.dev.prateek.musicplayerdas.Models.SongInfo;
@@ -33,6 +35,7 @@ import com.downloadanysong.dev.prateek.musicplayerdas.NavBar.PlayerActivity;
 import com.downloadanysong.dev.prateek.musicplayerdas.R;
 import com.downloadanysong.dev.prateek.musicplayerdas.Sqlite.FavDatabaseHandler;
 import com.downloadanysong.dev.prateek.musicplayerdas.utils.ImageCache;
+import com.downloadanysong.dev.prateek.musicplayerdas.utils.UtilFunctions;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -46,9 +49,14 @@ public class SongAdapter  extends RecyclerView.Adapter<SongAdapter.MyViewHolder>
     private FragmentActivity fragment;
     private PlayerActivity playerActivity;
     private LayoutInflater inflater;
-    String title_fav;
-    String song_url_fav;
-    String artist_fav;
+    private String title_fav;
+    private String song_url_fav;
+    private String artist_fav;
+    private long album_id;
+     private SongInfo song;
+    private String title_song, artist_song, url_song;
+
+
     int song_position;
     FavDatabaseHandler db ;
     ImageBitmap imageBitmap;
@@ -60,7 +68,7 @@ public class SongAdapter  extends RecyclerView.Adapter<SongAdapter.MyViewHolder>
         //private TextView download;
         //private TextView audio;
         public TextView title;
-        public ImageView overflow,album_art;
+        public ImageView overflow;
         public ProgressBar progressBar;
         public View vw;               // <----- here
 
@@ -71,11 +79,8 @@ public class SongAdapter  extends RecyclerView.Adapter<SongAdapter.MyViewHolder>
             this.vw = view;            // <----- here
             artist = (TextView) view.findViewById(R.id.artist_name_tv);
             title = (TextView) view.findViewById(R.id.song_name_tv);
-            album_art= (ImageView) view.findViewById(R.id.thumbnail);
             overflow = (ImageView) view.findViewById(R.id.ovflow);
-            progressBar = (ProgressBar) view.findViewById(R.id.image_load);
             db=new FavDatabaseHandler(fragment);
-
 
 
         }
@@ -97,70 +102,22 @@ public class SongAdapter  extends RecyclerView.Adapter<SongAdapter.MyViewHolder>
     @Override
     public void onBindViewHolder(final SongAdapter.MyViewHolder holder, final int position) {
 
-        final SongInfo song = listsong.get(position);
-        final String title_song, artist_song, url_song;
+        song = listsong.get(position);
         title_song = song.getSongname();
         artist_song = song.getArtistname();
         url_song = song.getSongUrl();
+        album_id = song.getId();
         final boolean filter = song.getFilter();
 
         holder.title.setText(title_song);
-        Log.d("SA", "ARTIST NAME" +artist_song);
-        if (!artist_song.equalsIgnoreCase("<unknown>")){
+        Log.d("SA", "ARTIST NAME" + artist_song);
+        if (!artist_song.equalsIgnoreCase("<unknown>")) {
             holder.artist.setText(artist_song);
-        }
-        else {
+        } else {
             holder.artist.setText("");
 
-    }
-       holder.progressBar.setMax(150);
-
+        }
         //BEST AND WORKING METHOD
-
-        new AsyncTask<Object, Object, Void>() {
-                    @Override
-                    protected void onPreExecute() {
-                 holder.progressBar.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    protected Void doInBackground(Object... objects) {
-                        MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
-                        metaRetriver.setDataSource(url_song);
-                        byte[] art = metaRetriver.getEmbeddedPicture();
-
-                        if (art != null) {
-                            BitmapFactory.Options opt = new BitmapFactory.Options();
-                            opt.inSampleSize = 2;
-                            Bitmap songImage = BitmapFactory.decodeByteArray(art, 0, art.length, opt);
-                            song.setThumnail(songImage);
-                        }
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void aVoid) {
-
-
-
-                    }
-                }.execute();
-
-
-        holder.album_art.setImageBitmap(song.getThumnail());
-        holder.progressBar.setVisibility(View.GONE);
-
-
-        /*byte[] art = song.getThumnail();
-
-        if (art!=null) {
-            BitmapFactory.Options opt = new BitmapFactory.Options();
-            opt.inSampleSize = 2;
-            Bitmap songImage = BitmapFactory.decodeByteArray(art, 0, art.length,opt);
-            holder.album_art.setImageBitmap(songImage);
-        }*/
-
 
         holder.overflow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,47 +129,18 @@ public class SongAdapter  extends RecyclerView.Adapter<SongAdapter.MyViewHolder>
         holder.vw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (filter!=true)
-                {
-                playerActivity.func_pos(position);
-                }
-                else {
-                    playerActivity.playSongurl(url_song,title_song);
-
-
-                }
-
-            }
-        });
-        holder.album_art.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (filter!=true)
-                {
+                if (filter != true) {
                     playerActivity.func_pos(position);
-                }
-                else {
-                    playerActivity.playSongurl(url_song,title_song);
-
-
-                }
-
-            }
-        });
-        holder.album_art.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    v.setAlpha(.5f);
                 } else {
-                    v.setAlpha(1f);
-                }
-                return false;
-            }
+                    playerActivity.playSongurl(url_song, title_song);
 
+
+                }
+
+            }
         });
     }
+
 
     /**
      * Showing popup menu when tapping on 3 dots

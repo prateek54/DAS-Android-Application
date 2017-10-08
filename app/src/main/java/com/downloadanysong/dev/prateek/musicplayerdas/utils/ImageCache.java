@@ -7,8 +7,8 @@ import android.util.LruCache;
 /**
  * Created by prateek on 30-06-2017.
  */
-@SuppressLint("NewApi")
 public class ImageCache {
+    private LruCache<String, Bitmap> cache = null;
 
     public ImageCache() {
         // use 1/8 of available heap size
@@ -29,7 +29,6 @@ public class ImageCache {
         return imageCache;
 
     }
-    private LruCache<String, Bitmap> cache = null;
 
     /**
      * put bitmap to image cache
