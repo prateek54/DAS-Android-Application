@@ -38,11 +38,11 @@ public class AboutActivity extends Fragment{
 
         TextView main_head = (TextView) rootView.findViewById(R.id.heading);
         TextView para_one = (TextView) rootView.findViewById(R.id.para1);
-        TextView head_para = (TextView) rootView.findViewById(R.id.contact_para);
+        //TextView head_para = (TextView) rootView.findViewById(R.id.contact_para);
 
         main_head.setTypeface(custom_font);
         para_one.setTypeface(custom_font2);
-        head_para.setTypeface(custom_font2);
+        //head_para.setTypeface(custom_font2);
         reachus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
