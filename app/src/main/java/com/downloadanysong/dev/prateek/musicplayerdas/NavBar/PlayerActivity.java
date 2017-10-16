@@ -650,7 +650,7 @@ public class PlayerActivity extends Fragment implements android.media.MediaPlaye
      */
     public void playSong(int songIndex) {
 
-            Intent intent = new Intent(getActivity(), PlayerService.class);
+            Intent intent = new Intent(getContext(), PlayerService.class);
             Log.d("TEST", "PLAY FUNCTION");
             main.setCurrentSongIndex(songIndex);
             intent.setAction(PLAY_ACTION);
