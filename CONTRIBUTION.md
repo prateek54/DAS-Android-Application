@@ -1,22 +1,32 @@
-**Contribute **
+**How to contribute**
 
 **1. Fork and Clone this repo :**
 
-```shgit clone https://github.com/<your_github_username>/DAS-Android-Application.gitcd DAS-Android-Application```
+```sh
+git clone https://github.com/<your_github_username>/DAS-Android-Application.git
+cd DAS-Android-Application
+```
 
 **2. Modify any file or add your own file**
 
 **3. Add all the modified files :**
 
-```shgit add <path of modified-files>```
+```sh
+git add <path of modified-files>
+```
 
 **4. Commit your changes :**
 
-```shgit commit -m  "<Specify your changes>"```
+```sh
+git commit -m  "<Specify your changes>"
+```
 
 **5. Push your changes :**
 
-```shgit remote add origin [https://github.com/](https://github.com/)<your_github_username>/DAS-Android-Application.git
+```sh
+git remote add origin [https://github.com/](https://github.com/)<your_github_username>/DAS-Android-Application.git
 
-git push -u origin master```
+git push -u origin master
+```
 
+**6.** [Open a pull request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/)
